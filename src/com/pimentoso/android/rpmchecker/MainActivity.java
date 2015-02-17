@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
-// Author 
 
 /**
  * Main activity for Mini4WD RPM Checker.
@@ -26,16 +25,16 @@ import android.widget.TextView;
  */
 public class MainActivity extends Activity implements OnClickListener {
 
-	// TODO rimuovere vibrazione del telefono
 	// TODO tasto start-stop + calcolo della media alla fine
+	// TODO threshold sopra la quale ignorare le frequenze
 	
 	private TextView label;	
 	
 	private class MyAsyncTask extends AsyncTask<Void, String, Void> {
 		
-		public boolean recording; //variable to start or stop recording
-		public int frequency; //the public variable that contains the frequency value "heard", it is updated continually while the thread is running.
-
+		public boolean recording;
+		public int frequency; 
+		
 		@Override
 		protected Void doInBackground(Void... params) {
 
@@ -44,9 +43,6 @@ public class MainActivity extends Activity implements OnClickListener {
 			short audioData[];
 			int bufferSize;
 
-			// bufferSize = AudioRecord.getMinBufferSize(8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT) * 3;
-			// recorder = new AudioRecord(AudioSource.MIC, 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-			
 			bufferSize = AudioRecord.getMinBufferSize(8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT) * 3;
 			recorder = new AudioRecord(
 					AudioSource.VOICE_RECOGNITION, // use this instead of AudioSource.MIC for better results
@@ -163,7 +159,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-
 		switch (v.getId()) {
 
 		}
@@ -179,7 +174,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-
 		switch (item.getItemId()) {
 		case R.id.menu_tutorial: {
 			showAlertBox();
