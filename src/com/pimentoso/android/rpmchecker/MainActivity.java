@@ -8,24 +8,27 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
-//Author xdebugx.net (Jeremiah McLeod) 8-8-2010
-
-//recorderThread
+// Author 
 
 /**
- * Main activity for Mini4WD Lap Timer.
+ * Main activity for Mini4WD RPM Checker.
+ * 
+ * Credits to xdebugx.net (Jeremiah McLeod) 8-8-2010
+ * for the zero crossing algorhythm
  * 
  * @author Pimentoso
  */
 public class MainActivity extends Activity implements OnClickListener {
 
+	// TODO rimuovere vibrazione del telefono
+	// TODO tasto start-stop + calcolo della media alla fine
+	
 	private TextView label;	
 	
 	private class MyAsyncTask extends AsyncTask<Void, String, Void> {
@@ -45,7 +48,12 @@ public class MainActivity extends Activity implements OnClickListener {
 			// recorder = new AudioRecord(AudioSource.MIC, 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
 			
 			bufferSize = AudioRecord.getMinBufferSize(8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT) * 3;
-			recorder = new AudioRecord(AudioSource.MIC, 8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+			recorder = new AudioRecord(
+					AudioSource.VOICE_RECOGNITION, // use this instead of AudioSource.MIC for better results
+					8000, 
+					AudioFormat.CHANNEL_IN_MONO, 
+					AudioFormat.ENCODING_PCM_16BIT, 
+					bufferSize);
 
 			recording = true;
 			audioData = new short[bufferSize]; //short array that pcm data is put into.
@@ -92,7 +100,7 @@ public class MainActivity extends Activity implements OnClickListener {
 							numSamples++;
 						}
 
-						frequency = (8000 / numSamples) * numCrossing;
+						frequency = (int) ((8000.0 / (float) numSamples) * (float) numCrossing);
 						publishProgress(Integer.toString(frequency));
 					}
 				}
@@ -113,7 +121,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		@Override
 		protected void onProgressUpdate(String... values) {
-			label.setText(values[0]);
+			int rpm = frequency; // * 60;
+			label.setText(Integer.toString(rpm));
 		}
 
 	}

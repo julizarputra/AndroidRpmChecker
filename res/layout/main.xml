@@ -14,12 +14,21 @@
         android:orientation="vertical" >
 
         <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="RPM"
+            android:textColor="@color/red_text"
+            android:textSize="24sp"
+            android:typeface="monospace" />
+
+        <TextView
             android:id="@+id/text_timer"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="0"
-            android:textColor="@color/red_text"
+            android:textColor="@color/text"
             android:textSize="32sp"
             android:textStyle="bold"
             android:typeface="monospace" />
