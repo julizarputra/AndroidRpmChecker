@@ -1,5 +1,8 @@
 package com.pimentoso.android.rpmchecker;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -8,11 +11,13 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -24,16 +29,19 @@ import android.widget.TextView;
  * @author Pimentoso
  */
 public class MainActivity extends Activity implements OnClickListener {
-
-	// TODO tasto start-stop + calcolo della media alla fine
-	// TODO threshold sopra la quale ignorare le frequenze
+	
+	private static final int MOTOR_DETECT_FREQUENCY_THRESHOLD = 20;
 	
 	private TextView label;	
+	private Button buttonStart;
+	private MyAsyncTask recorderTask;
+	private ArrayList<Integer> frequencies;
+	private boolean recording = false;
 	
 	private class MyAsyncTask extends AsyncTask<Void, String, Void> {
 		
-		public boolean recording;
-		public int frequency; 
+		private int frequency; 
+		private boolean error = false;
 		
 		@Override
 		protected Void doInBackground(Void... params) {
@@ -51,7 +59,7 @@ public class MainActivity extends Activity implements OnClickListener {
 					AudioFormat.ENCODING_PCM_16BIT, 
 					bufferSize);
 
-			recording = true;
+			frequencies = new ArrayList<Integer>();
 			audioData = new short[bufferSize]; //short array that pcm data is put into.
 			
 			while (recording) {
@@ -97,13 +105,23 @@ public class MainActivity extends Activity implements OnClickListener {
 						}
 
 						frequency = (int) ((8000.0 / (float) numSamples) * (float) numCrossing);
+						frequencies.add(frequency);
+						
+						if (frequencies.size() % 10 == 0 && !motorDetected()) {
+							error = true;
+							recording = false;
+						}
+						
 						publishProgress(Integer.toString(frequency));
+						Log.i("Mini4WD Rpm Checker", Integer.toString(frequency));
 					}
 				}
 			} //while recording
-
-			if (recorder.getState() == android.media.AudioRecord.RECORDSTATE_RECORDING)
+			
+			if (recorder.getState() == android.media.AudioRecord.RECORDSTATE_RECORDING) {
 				recorder.stop(); //stop the recorder before ending the thread
+			}
+			
 			recorder.release(); //release the recorders resources
 			recorder = null; //set the recorder to be garbage collected.
 
@@ -113,6 +131,12 @@ public class MainActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
+			if (error) {
+				label.setText("Motor not detected");
+			}
+			else {
+				calculate();
+			}
 		}
 
 		@Override
@@ -141,8 +165,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.main);
 		
 		label = (TextView) findViewById(R.id.text_timer);
-		MyAsyncTask myAsyncTask = new MyAsyncTask();
-        myAsyncTask.execute();
+		buttonStart = (Button) findViewById(R.id.button_start);
+		buttonStart.setOnClickListener(this);
 	}
 
 	@Override
@@ -160,8 +184,49 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-
+			case R.id.button_start: {
+				if (recording) {
+					recording = false;
+					buttonStart.setText("Start");
+				}
+				else {
+					recording = true;
+					recorderTask = new MyAsyncTask();
+					recorderTask.execute();
+					buttonStart.setText("Stop");
+				}
+			}
 		}
+	}
+	
+	private boolean motorDetected() {
+		List<Integer> period = frequencies.subList(frequencies.size()-10, frequencies.size());
+		int avg = 0;
+		for (int f : period) {
+			avg += f;
+		}
+		avg = avg/10;
+		int peaks = 0;
+		for (int f : period) {
+			if (f < avg-MOTOR_DETECT_FREQUENCY_THRESHOLD || f > avg+MOTOR_DETECT_FREQUENCY_THRESHOLD)
+				peaks++;
+		}
+		return peaks < 3;
+	}
+
+	private void calculate() {
+		int avg = 0;
+		int min = 0;
+		int max = 0;
+		for (int f : frequencies) {
+			avg += f;
+			if (min == 0 || f < min)
+				min = f;
+			if (max == 0 || f > max)
+				max = f;
+		}
+		avg = avg / frequencies.size();
+		label.setText("average " + avg);
 	}
 
 	@Override
