@@ -40,7 +40,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	
 	private class MyAsyncTask extends AsyncTask<Void, String, Void> {
 		
-		private int frequency; 
+		private int frequency;
+		private boolean tuneOk = false;
 		private boolean error = false;
 		
 		@Override
@@ -107,12 +108,19 @@ public class MainActivity extends Activity implements OnClickListener {
 						frequency = (int) ((8000.0 / (float) numSamples) * (float) numCrossing);
 						frequencies.add(frequency);
 						
-						if (frequencies.size() % 10 == 0 && !motorDetected()) {
-							error = true;
-							recording = false;
+						if (frequencies.size() == 10) {
+							tuneOk = motorDetected();
+							
+							if (!tuneOk) {
+								error = true;
+								recording = false;
+							}
 						}
 						
-						publishProgress(Integer.toString(frequency));
+						if (tuneOk) {
+							publishProgress(Integer.toString(frequency));
+						}
+						
 						Log.i("Mini4WD Rpm Checker", Integer.toString(frequency));
 					}
 				}
@@ -144,7 +152,6 @@ public class MainActivity extends Activity implements OnClickListener {
 			int rpm = frequency; // * 60;
 			label.setText(Integer.toString(rpm));
 		}
-
 	}
 
 	@Override
@@ -188,6 +195,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				if (recording) {
 					recording = false;
 					buttonStart.setText("Start");
+					label.setText("Detecting motor...");
 				}
 				else {
 					recording = true;
