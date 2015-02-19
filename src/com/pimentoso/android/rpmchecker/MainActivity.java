@@ -31,8 +31,11 @@ import android.widget.TextView;
 public class MainActivity extends Activity implements OnClickListener {
 	
 	private static final int MOTOR_DETECT_FREQUENCY_THRESHOLD = 20;
-	
-	private TextView label;	
+	private static final int FREQUENCIES_TO_CALIBRATE = 10;
+	private static final int FREQUENCIES_TO_RECORD = 50;
+
+	private TextView labelStatus;
+	private TextView labelResult;	
 	private Button buttonStart;
 	private MyAsyncTask recorderTask;
 	private ArrayList<Integer> frequencies;
@@ -108,7 +111,7 @@ public class MainActivity extends Activity implements OnClickListener {
 						frequency = (int) ((8000.0 / (float) numSamples) * (float) numCrossing);
 						frequencies.add(frequency);
 						
-						if (frequencies.size() == 10) {
+						if (frequencies.size() == FREQUENCIES_TO_CALIBRATE) {
 							tuneOk = motorDetected();
 							
 							if (!tuneOk) {
@@ -122,6 +125,11 @@ public class MainActivity extends Activity implements OnClickListener {
 						}
 						
 						Log.i("Mini4WD Rpm Checker", Integer.toString(frequency));
+						
+						if (frequencies.size() == FREQUENCIES_TO_CALIBRATE+FREQUENCIES_TO_RECORD) {
+							// stop
+							recording = false;
+						}
 					}
 				}
 			} //while recording
@@ -140,17 +148,20 @@ public class MainActivity extends Activity implements OnClickListener {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			if (error) {
-				label.setText("Motor not detected");
+				labelStatus.setText(R.string.label_status_calibration_error);
 			}
 			else {
+				labelStatus.setText(R.string.label_status_stopped);
 				calculate();
 			}
+			buttonStart.setEnabled(true);
 		}
 
 		@Override
 		protected void onProgressUpdate(String... values) {
-			int rpm = frequency; // * 60;
-			label.setText(Integer.toString(rpm));
+			int rpm = frequency * 60;
+			labelStatus.setText(getString(R.string.label_status_started) + " " + frequencies.size()/10);
+			labelResult.setText("rpm: " + rpm);
 		}
 	}
 
@@ -170,10 +181,12 @@ public class MainActivity extends Activity implements OnClickListener {
 		*/
 
 		setContentView(R.layout.main);
-		
-		label = (TextView) findViewById(R.id.text_timer);
+
+		labelStatus = (TextView) findViewById(R.id.text_status);
+		labelResult = (TextView) findViewById(R.id.text_result);
 		buttonStart = (Button) findViewById(R.id.button_start);
 		buttonStart.setOnClickListener(this);
+		labelStatus.setText(R.string.label_status_init);
 	}
 
 	@Override
@@ -192,17 +205,12 @@ public class MainActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.button_start: {
-				if (recording) {
-					recording = false;
-					buttonStart.setText("Start");
-					label.setText("Detecting motor...");
-				}
-				else {
-					recording = true;
-					recorderTask = new MyAsyncTask();
-					recorderTask.execute();
-					buttonStart.setText("Stop");
-				}
+				recording = true;
+				labelStatus.setText(R.string.label_status_calibrating);
+				labelResult.setText("-");
+				recorderTask = new MyAsyncTask();
+				recorderTask.execute();
+				buttonStart.setEnabled(false);
 			}
 		}
 	}
@@ -234,7 +242,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				max = f;
 		}
 		avg = avg / frequencies.size();
-		label.setText("average " + avg);
+		labelResult.setText("rpm: " + avg*60);
 	}
 
 	@Override

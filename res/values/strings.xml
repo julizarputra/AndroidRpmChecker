@@ -1,36 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Mini4WD Rpm Checker</string>
-    <string name="label_start">Start</string>
-    <string name="label_stop">Stop</string>
-    <string name="label_calibrate">Calibrate</string>
-    <string name="label_sensitivity">Sensitivity</string>
-    <string name="label_status_init">Waiting calibration</string>
-    <string name="label_status_calibrating">Calibrating...</string>
-    <string name="label_status_calibrated">Calibration OK</string>
-    <string name="label_status_calibration_error">Please recalibrate!</string>
-    <string name="label_status_ready">Waiting for car pass</string>
-    <string name="label_status_started">Car running</string>
-    <string name="label_status_stopped">Session completed</string>
+    
+    <string name="button_start">Start</string>
+    <string name="button_stop">Stop</string>
+    
+    <string name="label_status_init">Turn on motor and press start</string>
+    <string name="label_status_calibrating">Detecting motor...</string>
+    <string name="label_status_calibration_error">Motor not detected!</string>
+    <string name="label_status_started">Analyzing rpm...</string>
+    <string name="label_status_stopped">Completed</string>
+    
     <string name="dialog_tutorial_title">How to use</string>
-    <string name="dialog_tutorial_text">"The app detects passage of the car when it passes on the red line in the camera preview.
-• Place the phone with the camera facing on a track lane. Keep it still.
-• Press calibrate.
-• Press start, the timer will start when the car passes.
-• Please use the app in a well-lit environment."</string>
+    <string name="dialog_tutorial_text">"The app analyzes motor sound to estimate its rpm.
+• Place the motor 3cm near the phone mic.
+• Start the motor.
+• Press start, the app will show the result in a few seconds.
+• Please use the app in a silent room."</string>
     <string name="menu_tutorial_label">Show tutorial</string>
-    <string name="menu_sensitivity_label">Adjust sensitivity</string>
-    <string name="menu_share_label">Share times</string>
-    <string name="menu_csv_label">Save times as CSV</string>
-    <string name="menu_csv_ok">Saved file: </string>
-    <string name="menu_csv_ko">Error: </string>
-    <string name="dialog_sensitivity_text">Adjust lap timer sensitivity</string>
-    <string name="dialog_sensitivity_high">high</string>
-    <string name="dialog_sensitivity_low">low</string>
-    <string name="dialog_sensitivity_default">Default</string>
-    <string name="dialog_sensitivity_save">Save</string>
-    <string name="error_camera_locked_text">Phone camera is already in use by other programs.</string>
-    <string name="error_camera_null_text">Could not start phone camera.</string>
-    <string name="error_laps_empty">Nothing to share.</string>
-    <string name="error_timer_started">You must stop the timer to share data.</string>
+    <string name="menu_share_label">Share result</string>
+    <string name="menu_save_label">Save result</string>
+
+    <string name="error_no_result">Nothing to share.</string>
+    <string name="error_started">Please wait for results.</string>
 </resources>
