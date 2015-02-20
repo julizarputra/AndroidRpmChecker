@@ -37,7 +37,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	
 	private static final int MOTOR_DETECT_FREQUENCY_THRESHOLD = 20;
 	private static final int FREQUENCIES_TO_CALIBRATE = 10;
-	private static final int FREQUENCIES_TO_RECORD = 50;
+	private static final int FREQUENCIES_TO_RECORD = 20;
 
 	private TextView labelStatus;
 	private TextView labelResult;	
@@ -113,7 +113,7 @@ public class MainActivity extends Activity implements OnClickListener {
 							numSamples++;
 						}
 
-						frequency = (int) ((8000.0 / (float) numSamples) * (float) numCrossing);
+						frequency = (int) ((8000.0 / (float) numSamples) * (float) numCrossing) -4;
 						frequencies.add(frequency);
 						
 						if (frequencies.size() == FREQUENCIES_TO_CALIBRATE) {
@@ -165,7 +165,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onProgressUpdate(String... values) {
 			int rpm = frequency * 60;
-			labelStatus.setText(getString(R.string.label_status_started) + " " + frequencies.size()/10);
+			int countdown = 5-(frequencies.size()-FREQUENCIES_TO_CALIBRATE-1)/4;
+			labelStatus.setText(getString(R.string.label_status_started) + " " + countdown);
 			labelResult.setText("rpm: " + rpm);
 		}
 	}

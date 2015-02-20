@@ -5,7 +5,8 @@
     <string name="button_start">Start</string>
     <string name="button_stop">Stop</string>
     
-    <string name="label_status_init">Turn on motor and press start</string>
+    <string name="label_status_init">"Turn on motor
+and press start"</string>
     <string name="label_status_calibrating">Detecting motor...</string>
     <string name="label_status_calibration_error">Motor not detected!</string>
     <string name="label_status_started">Analyzing rpm...</string>
