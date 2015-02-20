@@ -20,11 +20,16 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 /**
  * Main activity for Mini4WD RPM Checker.
  * 
  * Credits to xdebugx.net (Jeremiah McLeod) 8-8-2010
  * for the zero crossing algorhythm
+ * 
+ * For testing: http://www.audionotch.com/app/tune/
  * 
  * @author Pimentoso
  */
@@ -187,6 +192,10 @@ public class MainActivity extends Activity implements OnClickListener {
 		buttonStart = (Button) findViewById(R.id.button_start);
 		buttonStart.setOnClickListener(this);
 		labelStatus.setText(R.string.label_status_init);
+		
+		AdView adView = (AdView) this.findViewById(R.id.adView);
+	    AdRequest adRequest = new AdRequest.Builder().build();
+	    adView.loadAd(adRequest);
 	}
 
 	@Override
@@ -213,6 +222,19 @@ public class MainActivity extends Activity implements OnClickListener {
 				buttonStart.setEnabled(false);
 			}
 		}
+	}
+	
+	private void showAlertBox() {
+		new AlertDialog.Builder(this)
+		.setMessage(getString(R.string.dialog_tutorial_text))
+		.setTitle(getString(R.string.dialog_tutorial_title))
+		.setCancelable(true)
+		.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int whichButton) {	
+				
+			}
+		}).show();
 	}
 	
 	private boolean motorDetected() {
@@ -262,14 +284,5 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 		}
 		return false;
-	}
-
-	public void showAlertBox() {
-		new AlertDialog.Builder(this).setMessage(getString(R.string.dialog_tutorial_text)).setTitle(getString(R.string.dialog_tutorial_title)).setCancelable(true).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-
-			}
-		}).show();
 	}
 }
