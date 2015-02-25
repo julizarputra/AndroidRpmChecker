@@ -40,7 +40,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private static final int FREQUENCIES_TO_RECORD = 20;
 
 	private TextView labelStatus;
-	private TextView labelResult;	
+	private TextView labelResult;
+	private TextView labelFrequency;
 	private Button buttonStart;
 	private MyAsyncTask recorderTask;
 	private ArrayList<Integer> frequencies;
@@ -125,9 +126,7 @@ public class MainActivity extends Activity implements OnClickListener {
 							}
 						}
 						
-						if (tuneOk) {
-							publishProgress(Integer.toString(frequency));
-						}
+						publishProgress();
 						
 						Log.i("Mini4WD Rpm Checker", Integer.toString(frequency));
 						
@@ -152,6 +151,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
+			labelFrequency.setText("frequency: 0");
 			if (error) {
 				labelStatus.setText(R.string.label_status_calibration_error);
 			}
@@ -164,10 +164,14 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		@Override
 		protected void onProgressUpdate(String... values) {
-			int rpm = frequency * 60;
-			int countdown = 5-(frequencies.size()-FREQUENCIES_TO_CALIBRATE-1)/4;
-			labelStatus.setText(getString(R.string.label_status_started) + " " + countdown);
-			labelResult.setText("rpm: " + rpm);
+
+			labelFrequency.setText("frequency: " + frequency);
+			if (tuneOk) {
+				int rpm = frequency * 60;
+				int countdown = 5-(frequencies.size()-FREQUENCIES_TO_CALIBRATE-1)/4;
+				labelStatus.setText(getString(R.string.label_status_started) + " " + countdown);
+				labelResult.setText("rpm: " + rpm);
+			}
 		}
 	}
 
@@ -190,6 +194,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		labelStatus = (TextView) findViewById(R.id.text_status);
 		labelResult = (TextView) findViewById(R.id.text_result);
+		labelFrequency = (TextView) findViewById(R.id.text_frequency);
 		buttonStart = (Button) findViewById(R.id.button_start);
 		buttonStart.setOnClickListener(this);
 		labelStatus.setText(R.string.label_status_init);

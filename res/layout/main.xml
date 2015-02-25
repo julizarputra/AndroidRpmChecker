@@ -19,8 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingBottom="50dp"
-            android:paddingTop="50dp" >
+            android:padding="50dp" >
 
             <TextView
                 android:id="@+id/text_status"
@@ -42,6 +41,17 @@
                 android:textColor="@color/red_text"
                 android:textSize="32sp"
                 android:textStyle="bold"
+                android:typeface="monospace" />
+            
+            <TextView
+                android:id="@+id/text_frequency"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="left"
+                android:text="frequency: 0"
+                android:textColor="@color/text_fade"
+                android:textSize="12sp"
                 android:typeface="monospace" />
         </LinearLayout>
 
