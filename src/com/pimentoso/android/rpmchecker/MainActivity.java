@@ -36,7 +36,6 @@ import com.google.android.gms.ads.AdView;
 public class MainActivity extends Activity implements OnClickListener {
 	
 	private static final int MOTOR_DETECT_FREQUENCY_THRESHOLD = 20;
-	private static final int FREQUENCIES_TO_CALIBRATE = 10;
 	private static final int FREQUENCIES_TO_RECORD = 20;
 
 	private TextView labelStatus;
@@ -50,7 +49,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private class MyAsyncTask extends AsyncTask<Void, String, Void> {
 		
 		private int frequency;
-		private boolean tuneOk = false;
+		private boolean calibrating = true;
+		private int frequencyCalibrated;
 		private boolean error = false;
 		
 		@Override
@@ -69,6 +69,7 @@ public class MainActivity extends Activity implements OnClickListener {
 					AudioFormat.ENCODING_PCM_16BIT, 
 					bufferSize);
 
+			calibrating = true;
 			frequencies = new ArrayList<Integer>();
 			audioData = new short[bufferSize]; //short array that pcm data is put into.
 			
@@ -117,23 +118,7 @@ public class MainActivity extends Activity implements OnClickListener {
 						frequency = (int) ((8000.0 / (float) numSamples) * (float) numCrossing) -4;
 						frequencies.add(frequency);
 						
-						if (frequencies.size() == FREQUENCIES_TO_CALIBRATE) {
-							tuneOk = motorDetected();
-							
-							if (!tuneOk) {
-								error = true;
-								recording = false;
-							}
-						}
-						
 						publishProgress();
-						
-						Log.i("Mini4WD Rpm Checker", Integer.toString(frequency));
-						
-						if (frequencies.size() == FREQUENCIES_TO_CALIBRATE+FREQUENCIES_TO_RECORD) {
-							// stop
-							recording = false;
-						}
 					}
 				}
 			} //while recording
@@ -166,11 +151,48 @@ public class MainActivity extends Activity implements OnClickListener {
 		protected void onProgressUpdate(String... values) {
 
 			labelFrequency.setText("frequency: " + frequency);
-			if (tuneOk) {
+			Log.i("Mini4WD Rpm Checker", Integer.toString(frequency));
+
+			if (calibrating) {
+				
+				// bail
+				if (frequencies.size() >= 100) {
+					error = true;
+					recording = false;
+				}
+				
+				// accumula frequenze finché le ultime 10 non rientrano nella threshold
+				List<Integer> period = frequencies.subList(frequencies.size()-10, frequencies.size());
+				int avg = 0;
+				for (int f : period) {
+					avg += f;
+				}
+				avg = avg/10;
+				
+				boolean inThreshold = true;
+				for (int f : period) {
+					if (f < avg-MOTOR_DETECT_FREQUENCY_THRESHOLD || f > avg+MOTOR_DETECT_FREQUENCY_THRESHOLD) {
+						inThreshold = false;
+					}
+				}
+				
+				if (inThreshold) {
+					// motor found
+					calibrating = false;
+					frequencyCalibrated = avg;
+					frequencies.clear();
+				}
+			}
+			else {
 				int rpm = frequency * 60;
-				int countdown = 5-(frequencies.size()-FREQUENCIES_TO_CALIBRATE-1)/4;
+				int countdown = 5-(frequencies.size()-1)/(FREQUENCIES_TO_RECORD/5);
 				labelStatus.setText(getString(R.string.label_status_started) + " " + countdown);
 				labelResult.setText("rpm: " + rpm);
+				
+				if (frequencies.size() >= FREQUENCIES_TO_RECORD) {
+					// stop
+					recording = false;
+				}
 			}
 		}
 	}
@@ -241,21 +263,6 @@ public class MainActivity extends Activity implements OnClickListener {
 				
 			}
 		}).show();
-	}
-	
-	private boolean motorDetected() {
-		List<Integer> period = frequencies.subList(frequencies.size()-10, frequencies.size());
-		int avg = 0;
-		for (int f : period) {
-			avg += f;
-		}
-		avg = avg/10;
-		int peaks = 0;
-		for (int f : period) {
-			if (f < avg-MOTOR_DETECT_FREQUENCY_THRESHOLD || f > avg+MOTOR_DETECT_FREQUENCY_THRESHOLD)
-				peaks++;
-		}
-		return peaks < 3;
 	}
 
 	private void calculate() {
