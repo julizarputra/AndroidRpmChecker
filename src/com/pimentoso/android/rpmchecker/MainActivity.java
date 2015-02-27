@@ -41,6 +41,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	private TextView labelStatus;
 	private TextView labelResult;
 	private TextView labelFrequency;
+	private TextView labelAverage;
 	private Button buttonStart;
 	private MyAsyncTask recorderTask;
 	private ArrayList<Integer> frequencies;
@@ -161,26 +162,29 @@ public class MainActivity extends Activity implements OnClickListener {
 					recording = false;
 				}
 				
-				// accumula frequenze finché le ultime 10 non rientrano nella threshold
-				List<Integer> period = frequencies.subList(frequencies.size()-10, frequencies.size());
-				int avg = 0;
-				for (int f : period) {
-					avg += f;
-				}
-				avg = avg/10;
-				
-				boolean inThreshold = true;
-				for (int f : period) {
-					if (f < avg-MOTOR_DETECT_FREQUENCY_THRESHOLD || f > avg+MOTOR_DETECT_FREQUENCY_THRESHOLD) {
-						inThreshold = false;
+				if (frequencies.size() >= 10) {
+					// accumula frequenze finché le ultime 10 non rientrano nella threshold
+					List<Integer> period = frequencies.subList(frequencies.size()-10, frequencies.size());
+					int avg = 0;
+					for (int f : period) {
+						avg += f;
 					}
-				}
-				
-				if (inThreshold) {
-					// motor found
-					calibrating = false;
-					frequencyCalibrated = avg;
-					frequencies.clear();
+					avg = avg/10;
+					labelAverage.setText("average: " + avg);
+					
+					boolean inThreshold = true;
+					for (int f : period) {
+						if (f < avg-MOTOR_DETECT_FREQUENCY_THRESHOLD || f > avg+MOTOR_DETECT_FREQUENCY_THRESHOLD) {
+							inThreshold = false;
+						}
+					}
+					
+					if (inThreshold) {
+						// motor found
+						calibrating = false;
+						frequencyCalibrated = avg;
+						frequencies.clear();
+					}
 				}
 			}
 			else {
@@ -217,6 +221,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		labelStatus = (TextView) findViewById(R.id.text_status);
 		labelResult = (TextView) findViewById(R.id.text_result);
 		labelFrequency = (TextView) findViewById(R.id.text_frequency);
+		labelAverage = (TextView) findViewById(R.id.text_average);
 		buttonStart = (Button) findViewById(R.id.button_start);
 		buttonStart.setOnClickListener(this);
 		labelStatus.setText(R.string.label_status_init);

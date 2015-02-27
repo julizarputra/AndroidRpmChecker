@@ -53,6 +53,16 @@
                 android:textColor="@color/text_fade"
                 android:textSize="12sp"
                 android:typeface="monospace" />
+            
+            <TextView
+                android:id="@+id/text_average"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="average: 0"
+                android:textColor="@color/text_fade"
+                android:textSize="12sp"
+                android:typeface="monospace" />
         </LinearLayout>
 
         <Button
