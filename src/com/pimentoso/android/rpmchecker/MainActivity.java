@@ -36,8 +36,8 @@ import com.google.android.gms.ads.AdView;
 public class MainActivity extends Activity implements OnClickListener {
 	
 	private static final int MOTOR_DETECT_FREQUENCY_THRESHOLD = 20;
-	private static final int FREQUENCIES_TO_CALIBRATE = 10;
-	private static final int FREQUENCIES_TO_RECORD = 20;
+	private static final int FREQUENCIES_TO_CALIBRATE = 20;
+	private static final int FREQUENCIES_TO_RECORD = 30;
 
 	private TextView labelStatus;
 	private TextView labelResult;
@@ -168,7 +168,8 @@ public class MainActivity extends Activity implements OnClickListener {
 			labelFrequency.setText("frequency: " + frequency);
 			if (tuneOk) {
 				int rpm = frequency * 60;
-				int countdown = 5-(frequencies.size()-FREQUENCIES_TO_CALIBRATE-1)/4;
+				int interval = FREQUENCIES_TO_RECORD/5;
+				int countdown = 5-(frequencies.size()-FREQUENCIES_TO_CALIBRATE-1)/interval;
 				labelStatus.setText(getString(R.string.label_status_started) + " " + countdown);
 				labelResult.setText("rpm: " + rpm);
 			}
